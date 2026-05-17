@@ -28,13 +28,11 @@ with st.sidebar:
     st.markdown("Sesuaikan konfigurasi data historis dan kecerdasan model secara real-time.")
     st.markdown("---")
     
-    # Filter 1: Memilih Jendela Waktu (Sliding Window Concept)
     window_selection = st.selectbox(
         "1. Durasi Jendela Observasi:",
         ["12 Months (Scenario C - Winner)", "3 Months (Scenario A)", "6 Months (Scenario B)"]
     )
     
-    # Filter 2: Memilih Optimasi (Hanya muncul jika memilih 12 bulan)
     if "12 Months" in window_selection:
         opt_selection = st.radio(
             "2. Tingkat Optimasi Model:",
@@ -44,7 +42,6 @@ with st.sidebar:
         opt_selection = "Base Model (Balanced)"
         st.info("💡 Hyper-tuning diterapkan khusus pada Skenario C sebagai pemenang evaluasi.")
 
-    # Memuat model aktif berdasarkan pilihan user
     active_model, model_desc = load_selected_model(window_selection, opt_selection)
     
     st.markdown("---")
@@ -72,13 +69,14 @@ with tab1:
     with col1:
         recency = st.number_input("Recency (Hari sejak transaksi terakhir)", min_value=0, value=30)
     with col2:
-        frequency = st.number_input("Frequency (Total invoice yang ada sekarang)", min_value=1, value=5)
+        frequency = st.number_input("Frequency (Total invoice aktif)", min_value=1, value=5)
     with col3:
         monetary = st.number_input("Monetary (Total nilai belanja dalam USD)", min_value=0.0, value=500.0)
     with col4:
         time_val = st.number_input("Time (Rata-rata jeda hari antar belanja)", min_value=0.0, value=10.0)
 
-    if st.button("🚀 Jalankan Analisis Prediksi", type="primary", use_container_width=True):
+    # PERBAIKAN: Menghapus use_container_width pada st.button
+    if st.button("🚀 Jalankan Analisis Prediksi", type="primary"):
         input_df = pd.DataFrame([[recency, frequency, monetary, time_val]],
                                  columns=['Recency', 'Frequency', 'Monetary', 'Time'])
         
@@ -109,9 +107,10 @@ with tab1:
                 }
             ))
             fig.update_layout(height=320, margin=dict(l=10, r=10, t=40, b=10))
-            st.plotly_chart(fig, use_container_width=True)
             
-            # Penjelasan Tingkat Kepedean AI (Interpretability)
+            # PERBAIKAN: Mengganti parameter untuk kompatibilitas versi baru
+            st.plotly_chart(fig, width="stretch")
+            
             if risk_percentage >= 80:
                 st.error("🧠 **AI Confidence:** Sangat Yakin (Pola perilaku menunjukkan kecenderungan kuat meninggalkan platform).")
             elif risk_percentage >= 50:
@@ -156,35 +155,28 @@ with tab2:
                 df_raw['InvoiceDate'] = pd.to_datetime(df_raw['InvoiceDate'])
                 df_raw['Total_Price'] = df_raw['Quantity'] * df_raw['Price']
                 
-               # 1. Tentukan Titik Acuan Waktu (Snapshot Date) dan Tanggal Paling Awal
                 snapshot_date = df_raw['InvoiceDate'].max() + pd.Timedelta(days=1)
                 min_date_in_data = df_raw['InvoiceDate'].min()
-                
-                # Hitung rentang waktu data aktual (dalam hari)
                 data_duration_days = (snapshot_date - min_date_in_data).days
                 
-                # 2. LOGIKA SLIDING WINDOW (Pemotongan Data Otomatis!)
                 if "3 Months" in window_selection:
                     required_days = 90
                     start_date = snapshot_date - pd.DateOffset(months=3)
                 elif "6 Months" in window_selection:
                     required_days = 180
                     start_date = snapshot_date - pd.DateOffset(months=6)
-                else: # 12 Months
+                else: 
                     required_days = 365
                     start_date = snapshot_date - pd.DateOffset(months=12)
                 
-                # --- SISTEM PERINGATAN JIKA DATA WAKTU TIDAK PAS ---
                 if data_duration_days < required_days:
                     st.warning(f"⚠️ **Peringatan Skala Data:** Model yang Anda pilih membutuhkan data historis selama **{required_days} hari**, namun data yang diunggah hanya berdurasi **{data_duration_days} hari**. Hasil prediksi probabilitas mungkin menjadi pesimistis (bias terhadap Churn) karena fitur Frequency dan Monetary belum terakumulasi penuh.")
-                
-                # Buang data yang lebih lama dari start_date
+
                 df_filtered = df_raw[df_raw['InvoiceDate'] >= start_date].copy()
                 
                 if df_filtered.empty:
                     st.error("Data CSV kosong setelah dipotong sesuai jendela waktu. Pastikan rentang waktu data Anda mencukupi.")
                 else:
-                    # 3. Hitung RFMT MENGGUNAKAN DATA YANG SUDAH DIPOTONG
                     rfm = df_filtered.groupby('Customer ID').agg({
                         'InvoiceDate': lambda x: (snapshot_date - x.max()).days,
                         'Invoice': 'nunique',
@@ -200,14 +192,12 @@ with tab2:
                     t_df = df_filtered.groupby('Customer ID')['InvoiceDate'].apply(calc_time).reset_index(name='Time')
                     rfmt_df = pd.merge(rfm, t_df, on='Customer ID')
                     
-                    # 4. Prediksi Model
                     X_batch = rfmt_df[['Recency', 'Frequency', 'Monetary', 'Time']]
                     rfmt_df['Churn_Probability'] = active_model.predict_proba(X_batch)[:, 1]
                     rfmt_df['Status'] = ["Churn Risk" if p > 0.5 else "Loyal" for p in rfmt_df['Churn_Probability']]
                     
                     st.success(f"✅ Pemrosesan Selesai! Data diekstrak dari periode: {start_date.date()} hingga {snapshot_date.date()}")
                     
-                    # EXECUTIVE SUMMARY METRICS
                     st.markdown("### 📈 Executive Analytical Summary")
                     total_cust = len(rfmt_df)
                     churn_cust = len(rfmt_df[rfmt_df['Status'] == 'Churn Risk'])
@@ -218,21 +208,21 @@ with tab2:
                     kpi2.metric(label="⚠️ Teridentifikasi Risiko Churn", value=f"{churn_cust} Orang", delta=f"{(churn_cust/total_cust)*100:.1f}% Risiko", delta_color="inverse")
                     kpi3.metric(label="💸 Potensi Nilai Terancam", value=f"${revenue_at_risk:,.2f}")
                     
-                    # GRAPH VISUALIZATIONS
                     col_c1, col_c2 = st.columns(2)
                     with col_c1:
                         fig_p = px.pie(rfmt_df, names='Status', title="Proporsi Status Kelas Pelanggan", 
                                        color='Status', color_discrete_map={'Loyal':'#00cc96', 'Churn Risk':'#EF553B'}, hole=0.3)
-                        st.plotly_chart(fig_p, use_container_width=True)
+                        # PERBAIKAN: Mengganti parameter 
+                        st.plotly_chart(fig_p, width="stretch")
                     with col_c2:
                         fig_h = px.histogram(rfmt_df, x='Status', y='Monetary', title="Volume Kontribusi Uang Berdasarkan Status",
                                              color='Status', color_discrete_map={'Loyal':'#00cc96', 'Churn Risk':'#EF553B'}, histfunc='sum')
-                        st.plotly_chart(fig_h, use_container_width=True)
+                        # PERBAIKAN: Mengganti parameter
+                        st.plotly_chart(fig_h, width="stretch")
 
                     st.markdown("### 📋 Tabel Deteksi Nilai Tambah Pelanggan")
                     st.dataframe(rfmt_df.style.format({'Monetary': '${:.2f}', 'Churn_Probability': '{:.1%}', 'Time': '{:.1f}'}))
                     
-                    # DOWNLOAD REPORT
                     csv_data = rfmt_df.to_csv(index=False).encode('utf-8')
                     st.download_button(
                         label="⬇️ Unduh Dokumen Hasil Prediksi (CSV)",
