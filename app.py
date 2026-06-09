@@ -228,6 +228,15 @@ with tab2:
                         with col_c1:
                             fig_p = px.pie(rfmt_df, names='Status', title="Proporsi Status Pelanggan", 
                                            color='Status', color_discrete_map={'Loyal':'#00cc96', 'High Risk':'#EF553B'}, hole=0.4)
+                            fig_p.update_traces(
+                                textposition='inside',      
+                                textinfo='label+percent',  
+                                insidetextfont=dict(
+                                family="Arial", 
+                                size=16,              
+                                color="white"           
+                                )
+                            )
                             st.plotly_chart(fig_p, use_container_width=True)
                         with col_c2:
                             fig_h = px.histogram(rfmt_df, x='Status', y='Monetary', title="Volume Belanja Berdasarkan Status",
