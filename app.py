@@ -221,7 +221,7 @@ with tab2:
                         kpi1, kpi2, kpi3 = st.columns(3)
                         kpi1.metric("Pelanggan Aktif", total_cust)
                         kpi2.metric("Risiko Churn", f"{churn_cust} Orang", f"{(churn_cust/total_cust)*100:.1f}%", delta_color="inverse")
-                        kpi3.metric("Potensi Pendapatan Hilang", f"Rp {revenue_at_risk:,.0f}")
+                        kpi3.metric("Potensi Pendapatan Hilang", f"$ {revenue_at_risk:,.0f}")
                         
                         # Visualisasi Massal
                         col_c1, col_c2 = st.columns(2)
@@ -244,7 +244,7 @@ with tab2:
                             st.plotly_chart(fig_h, use_container_width=True)
 
                         # Tabel dan Download
-                        st.dataframe(rfmt_df.style.format({'Monetary': 'Rp {:.0f}', 'Churn_Probability': '{:.1%}', 'Time': '{:.1f}'}), use_container_width=True)
+                        st.dataframe(rfmt_df.style.format({'Monetary': '$ {:.0f}', 'Churn_Probability': '{:.1%}', 'Time': '{:.1f}'}), use_container_width=True)
                         
                         csv_data = rfmt_df.to_csv(index=False).encode('utf-8')
                         st.download_button(label="⬇️ Unduh Report CSV", data=csv_data, file_name=f"Churn_Report_{window_selection}.csv", mime="text/csv", type="primary")
