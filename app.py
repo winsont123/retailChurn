@@ -115,21 +115,65 @@ with tab1:
                 fig_g.update_layout(height=280, margin=dict(l=20, r=20, t=50, b=20), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
                 st.plotly_chart(fig_g, use_container_width=True)
                 
+            with col_gauge:
+                # GAUGE CHART (Transparan & Elegan)
+                fig_g = go.Figure(go.Indicator(
+                    mode="gauge+number",
+                    value=risk_percentage,
+                    number={'suffix': "%", 'font': {'size': 38, 'color': '#31333F'}},
+                    title={'text': "⚠️ Skor Risiko Churn", 'font': {'size': 18, 'color': '#31333F'}},
+                    gauge={
+                        'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
+                        'bar': {'color': "rgba(0,0,0,0.8)", 'thickness': 0.3},
+                        'bgcolor': "rgba(0,0,0,0)",
+                        'borderwidth': 0,
+                        'steps': [
+                            {'range': [0, 40], 'color': "#00cc96"},   # Hijau
+                            {'range': [40, 70], 'color': "#FFA15A"},  # Oranye
+                            {'range': [70, 100], 'color': "#EF553B"}  # Merah
+                        ],
+                        'threshold': {'line': {'color': "#31333F", 'width': 5}, 'thickness': 0.8, 'value': risk_percentage}
+                    }
+                ))
+                fig_g.update_layout(height=280, margin=dict(l=20, r=20, t=50, b=20), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+                st.plotly_chart(fig_g, use_container_width=True)
+                
+                # ==========================================
+                # KOTAK BIRU "AI CONFIDENCE" DI BAWAH GAUGE
+                # ==========================================
+                if risk_percentage >= 70:
+                    st.info("🧠 **AI Confidence:** Sangat Yakin (Deteksi anomali pada melebarnya jeda hari sangat kuat).")
+                elif risk_percentage >= 40:
+                    st.info("🧠 **AI Confidence:** Cukup Yakin (Karakteristik interval belanja mulai melambat).")
+                else:
+                    st.info("🧠 **AI Confidence:** Cukup Yakin (Aktivitas belanja masih dalam batas wajar dan stabil).")
+
             with col_recom:
                 st.markdown("### 💡 AI Business Strategy Recommendation")
                 if risk_percentage >= 70:
                     st.error("**STATUS: HIGH RISK (PROSPEK CHURN TINGGI)**")
-                    st.write("**Diagnosis:** Pelanggan menunjukkan gejala detasemen permanen dari platform.")
-                    st.write("**Tindakan Retensi:** Segera lakukan intervensi via *Customer Success Call* atau berikan *Voucher Cashback* 30% tanpa minimum pembelian.")
+                    st.markdown("#### Tindakan Pemeliharaan:")
+                    # Kotak Biru Poin Rekomendasi
+                    st.info("""
+                    * **Lakukan Panggilan Prioritas:** Segera hubungi via *Customer Success Call* untuk menanyakan kendala layanan.
+                    * **Penawaran Win-Back:** Kirimkan *Voucher Cashback* 30% tanpa minimum pembelian khusus untuk mengaktifkan kembali keranjang belanja.
+                    """)
                 elif risk_percentage >= 40:
                     st.warning("**STATUS: MEDIUM RISK (FASE MERENGGANG)**")
-                    st.write("**Diagnosis:** Rutinitas interval belanja mulai melambat.")
-                    st.write("**Tindakan Retensi:** Masukkan ID pelanggan ke dalam kampanye iklan penargetan ulang (*Automated Email Retargeting*).")
+                    st.markdown("#### Tindakan Pemeliharaan:")
+                    # Kotak Biru Poin Rekomendasi
+                    st.info("""
+                    * **Kampanye Retargeting:** Masukkan ID pelanggan ke dalam sistem *Automated Email Retargeting* dengan rilis katalog produk baru.
+                    * **Survei Kepuasan:** Kirimkan survei singkat berhadiah poin loyalty untuk mendeteksi potensi ketidakpuasan lebih awal.
+                    """)
                 else:
                     st.success("**STATUS: SAFE (PELANGGAN LOYAL)**")
-                    st.write("**Diagnosis:** Karakteristik RFMT sangat sehat, didominasi frekuensi kedatangan yang rapat.")
-                    st.write("**Tindakan Retensi:** Jaga kualitas SLA pengiriman. Tawarkan pendaftaran keanggotaan *Tier VIP*.")
-
+                    st.markdown("#### Tindakan Pemeliharaan:")
+                    # Kotak Biru Poin Rekomendasi (Persis PPT Slide 15)
+                    st.info("""
+                    * Pertahankan standar layanan untuk mempertahankan loyalitas jangka panjang.
+                    * Berikan kode *referral* khusus agar mereka dapat membantu mendatangkan pelanggan baru secara organik.
+                    """)
 # ==========================================
 # TAB 2: PROSES MASSAL (BATCH PROCESSING)
 # ==========================================
