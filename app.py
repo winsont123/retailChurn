@@ -8,7 +8,7 @@ import plotly.express as px
 # ==========================================
 # 1. KONFIGURASI HALAMAN
 # ==========================================
-st.set_page_config(page_title="Retail Churn AI Portal", page_icon="🛍️", layout="wide")
+st.set_page_config(page_title="Retail Churn AI Portal", page_icon="logo.png", layout="wide")
 
 # ==========================================
 # 2. FUNGSI MEMUAT MODEL (CACHE)
@@ -91,9 +91,9 @@ with tab1:
 
             st.markdown("---")
             col_gauge, col_recom = st.columns([1.2, 1.8])
-            
+                
             with col_gauge:
-                # GAUGE CHART (Transparan & Elegan)
+                # GAUGE CHART
                 fig_g = go.Figure(go.Indicator(
                     mode="gauge+number",
                     value=risk_percentage,
@@ -113,34 +113,8 @@ with tab1:
                     }
                 ))
                 fig_g.update_layout(height=280, margin=dict(l=20, r=20, t=50, b=20), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-                st.plotly_chart(fig_g, use_container_width=True)
+                st.plotly_chart(fig_g, use_container_width=True, key="gauge_utama")
                 
-            with col_gauge:
-                # GAUGE CHART (Transparan & Elegan)
-                fig_g = go.Figure(go.Indicator(
-                    mode="gauge+number",
-                    value=risk_percentage,
-                    number={'suffix': "%", 'font': {'size': 38, 'color': '#31333F'}},
-                    title={'text': "⚠️ Skor Risiko Churn", 'font': {'size': 18, 'color': '#31333F'}},
-                    gauge={
-                        'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
-                        'bar': {'color': "rgba(0,0,0,0.8)", 'thickness': 0.3},
-                        'bgcolor': "rgba(0,0,0,0)",
-                        'borderwidth': 0,
-                        'steps': [
-                            {'range': [0, 40], 'color': "#00cc96"},   # Hijau
-                            {'range': [40, 70], 'color': "#FFA15A"},  # Oranye
-                            {'range': [70, 100], 'color': "#EF553B"}  # Merah
-                        ],
-                        'threshold': {'line': {'color': "#31333F", 'width': 5}, 'thickness': 0.8, 'value': risk_percentage}
-                    }
-                ))
-                fig_g.update_layout(height=280, margin=dict(l=20, r=20, t=50, b=20), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-                st.plotly_chart(fig_g, use_container_width=True)
-                
-                # ==========================================
-                # KOTAK BIRU "AI CONFIDENCE" DI BAWAH GAUGE
-                # ==========================================
                 if risk_percentage >= 70:
                     st.info("🧠 **AI Confidence:** Sangat Yakin (Deteksi anomali pada melebarnya jeda hari sangat kuat).")
                 elif risk_percentage >= 40:
@@ -153,7 +127,6 @@ with tab1:
                 if risk_percentage >= 70:
                     st.error("**STATUS: HIGH RISK (PROSPEK CHURN TINGGI)**")
                     st.markdown("#### Tindakan Pemeliharaan:")
-                    # Kotak Biru Poin Rekomendasi
                     st.info("""
                     * **Lakukan Panggilan Prioritas:** Segera hubungi via *Customer Success Call* untuk menanyakan kendala layanan.
                     * **Penawaran Win-Back:** Kirimkan *Voucher Cashback* 30% tanpa minimum pembelian khusus untuk mengaktifkan kembali keranjang belanja.
@@ -161,7 +134,6 @@ with tab1:
                 elif risk_percentage >= 40:
                     st.warning("**STATUS: MEDIUM RISK (FASE MERENGGANG)**")
                     st.markdown("#### Tindakan Pemeliharaan:")
-                    # Kotak Biru Poin Rekomendasi
                     st.info("""
                     * **Kampanye Retargeting:** Masukkan ID pelanggan ke dalam sistem *Automated Email Retargeting* dengan rilis katalog produk baru.
                     * **Survei Kepuasan:** Kirimkan survei singkat berhadiah poin loyalty untuk mendeteksi potensi ketidakpuasan lebih awal.
@@ -169,13 +141,12 @@ with tab1:
                 else:
                     st.success("**STATUS: SAFE (PELANGGAN LOYAL)**")
                     st.markdown("#### Tindakan Pemeliharaan:")
-                    # Kotak Biru Poin Rekomendasi (Persis PPT Slide 15)
                     st.info("""
                     * Pertahankan standar layanan untuk mempertahankan loyalitas jangka panjang.
                     * Berikan kode *referral* khusus agar mereka dapat membantu mendatangkan pelanggan baru secara organik.
                     """)
 # ==========================================
-# TAB 2: PROSES MASSAL (BATCH PROCESSING)
+# TAB 2: (BATCH PROCESSING)
 # ==========================================
 with tab2:
     st.markdown("### Executive Batch Processing & Enterprise Analytics")
@@ -201,7 +172,7 @@ with tab2:
                     
                     snapshot_date = df_raw['InvoiceDate'].max() + pd.Timedelta(days=1)
                     
-                    # Logika Jendela Mundur
+                    # Logika Jendela 
                     if "3 Months" in window_selection:
                         start_date = snapshot_date - pd.DateOffset(months=3)
                     elif "6 Months" in window_selection:
@@ -237,7 +208,7 @@ with tab2:
                         rfmt_df['Status'] = ["Churn Risk" if p > 0.5 else "Loyal" for p in rfmt_df['Churn_Probability']]
                         
                         # ==========================================
-                        # RENDERING KPI DASHBOARD (Gaya PPT Slide 16)
+                        # RENDERING KPI DASHBOARD 
                         # ==========================================
                         st.markdown("### Executive Analytical Summary")
                         
@@ -258,16 +229,16 @@ with tab2:
                                              color='Status', color_discrete_map={'Loyal':'#00cc96', 'Churn Risk':'#EF553B'}, hole=0.45)
                             fig_pie.update_traces(textposition='inside', textinfo='label+percent', insidetextfont=dict(size=14, color="white"))
                             fig_pie.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=40, b=10, l=10, r=10))
-                            st.plotly_chart(fig_pie, use_container_width=True)
+                            st.plotly_chart(fig_pie, use_container_width=True, key="pie_massal")
                             
                         with col_g2:
-                            # Menggunakan bar chart murni hasil agregasi agar sumbu X rapi
+                            # Menggunakan bar chart 
                             bar_agg = rfmt_df.groupby('Status')['Monetary'].sum().reset_index()
                             fig_bar = px.bar(bar_agg, x='Status', y='Monetary', title="Volume Kontribusi Uang Berdasarkan Status",
                                              color='Status', color_discrete_map={'Loyal':'#00cc96', 'Churn Risk':'#EF553B'})
                             fig_bar.update_layout(yaxis=dict(title="sum of Monetary", tickformat="$.2s"), xaxis=dict(title="Status"),
                                                   paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=40, b=10, l=10, r=10), showlegend=False)
-                            st.plotly_chart(fig_bar, use_container_width=True)
+                            st.plotly_chart(fig_bar, use_container_width=True, key="bar_massal")
 
                         # TABEL HASIL & DOWNLOAD
                         st.subheader("Tabel Deteksi Nilai Tambah Pelanggan")
