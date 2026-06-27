@@ -97,11 +97,11 @@ with tab1:
                 fig_g = go.Figure(go.Indicator(
                     mode="gauge+number",
                     value=risk_percentage,
-                    number={'suffix': "%", 'font': {'size': 38, 'color': '#31333F'}},
-                    title={'text': "⚠️ Skor Risiko Churn", 'font': {'size': 18, 'color': '#31333F'}},
+                    number={'suffix': "%", 'font': {'size': 38}}, 
+                    title={'text': "⚠️ Skor Risiko Churn", 'font': {'size': 18}}, 
                     gauge={
-                        'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
-                        'bar': {'color': "rgba(0,0,0,0.8)", 'thickness': 0.3},
+                        'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "gray"},
+                        'bar': {'color': "gray", 'thickness': 0.3}, 
                         'bgcolor': "rgba(0,0,0,0)",
                         'borderwidth': 0,
                         'steps': [
@@ -109,7 +109,7 @@ with tab1:
                             {'range': [40, 70], 'color': "#FFA15A"},  # Oranye
                             {'range': [70, 100], 'color': "#EF553B"}  # Merah
                         ],
-                        'threshold': {'line': {'color': "#31333F", 'width': 5}, 'thickness': 0.8, 'value': risk_percentage}
+                        'threshold': {'line': {'color': "gray", 'width': 5}, 'thickness': 0.8, 'value': risk_percentage}
                     }
                 ))
                 fig_g.update_layout(height=280, margin=dict(l=20, r=20, t=50, b=20), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
