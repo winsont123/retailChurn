@@ -60,10 +60,10 @@ with st.sidebar:
 # ==========================================
 
 st.title("Retail Customer Retention Dashboard")
-st.markdown("Sistem Analitik berbasis *Machine Learning* untuk Memitigasi Risiko *Customer Churn*.")
+st.markdown("Sistem Analitik berbasis *Machine Learning* untuk Memitigasi Risiko *Customer Churn* (Churn = Tidak belanja lagi).")
 st.markdown("---")
 
-tab1, tab2 = st.tabs(["Per-Customer Prediction", "Batch Processing & Enterprise Analytics"])
+tab1, tab2 = st.tabs(["🎯Per-Customer Prediction", "📊Batch Processing & Enterprise Analytics"])
 
 # ==========================================
 # TAB 1: PREDIKSI INDIVIDU (PER-CUSTOMER)
@@ -126,21 +126,21 @@ with tab1:
                 st.markdown("### 💡 AI Business Strategy Recommendation")
                 if risk_percentage >= 70:
                     st.error("**STATUS: HIGH RISK (PROSPEK CHURN TINGGI)**")
-                    st.markdown("#### Tindakan Pemeliharaan:")
+                    st.markdown("#### 🛠️Tindakan Pemeliharaan:")
                     st.info("""
                     * **Lakukan Panggilan Prioritas:** Segera hubungi via *Customer Success Call* untuk menanyakan kendala layanan.
                     * **Penawaran Win-Back:** Kirimkan *Voucher Cashback* 30% tanpa minimum pembelian khusus untuk mengaktifkan kembali keranjang belanja.
                     """)
                 elif risk_percentage >= 40:
                     st.warning("**STATUS: MEDIUM RISK (FASE MERENGGANG)**")
-                    st.markdown("#### Tindakan Pemeliharaan:")
+                    st.markdown("#### 🛠️Tindakan Pemeliharaan:")
                     st.info("""
                     * **Kampanye Retargeting:** Masukkan ID pelanggan ke dalam sistem *Automated Email Retargeting* dengan rilis katalog produk baru.
                     * **Survei Kepuasan:** Kirimkan survei singkat berhadiah poin loyalty untuk mendeteksi potensi ketidakpuasan lebih awal.
                     """)
                 else:
                     st.success("**STATUS: SAFE (PELANGGAN LOYAL)**")
-                    st.markdown("#### Tindakan Pemeliharaan:")
+                    st.markdown("#### 🛠️Tindakan Pemeliharaan:")
                     st.info("""
                     * Pertahankan standar layanan untuk mempertahankan loyalitas jangka panjang.
                     * Berikan kode *referral* khusus agar mereka dapat membantu mendatangkan pelanggan baru secara organik.
@@ -241,7 +241,7 @@ with tab2:
                             st.plotly_chart(fig_bar, use_container_width=True, key="bar_massal")
 
                         # TABEL HASIL & DOWNLOAD
-                        st.subheader("Tabel Deteksi Nilai Tambah Pelanggan")
+                        st.subheader("📋Tabel Deteksi Nilai Tambah Pelanggan")
                         st.dataframe(rfmt_df.style.format({'Monetary': '${:,.2f}', 'Churn_Probability': '{:.1%}', 'Time': '{:.1f}'}), use_container_width=True)
                         
                         csv_export = rfmt_df.to_csv(index=False).encode('utf-8')
